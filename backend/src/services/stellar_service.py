@@ -29,9 +29,8 @@ from stellar_sdk.exceptions import (
     ConnectionError
 )
 
-from .config import get_settings
-from .models import Transaction
-from .database import get_db
+from ..config import get_settings
+from ..models import Transaction
 from sqlalchemy.orm import Session
 
 

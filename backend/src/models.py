@@ -61,6 +61,11 @@ class Policy(Base):
     claims = relationship("Claim", back_populates="policy", cascade="all, delete-orphan")
     transactions = relationship("Transaction", back_populates="policy", cascade="all, delete-orphan")
 
+    def __init__(self, **kwargs):
+        kwargs.setdefault("status", PolicyStatus.active)
+        kwargs.setdefault("claim_amount", 0)
+        super().__init__(**kwargs)
+
     def __repr__(self):
         return f"<Policy(id={self.id}, type='{self.policy_type.value}', status='{self.status.value}')>"
 
@@ -94,6 +99,10 @@ class Claim(Base):
     claimant = relationship("User", back_populates="claims")
     transactions = relationship("Transaction", back_populates="claim", cascade="all, delete-orphan")
 
+    def __init__(self, **kwargs):
+        kwargs.setdefault("approved", False)
+        super().__init__(**kwargs)
+
     def __repr__(self):
         return f"<Claim(id={self.id}, policy_id={self.policy_id}, approved={self.approved})>"
 
@@ -115,6 +124,10 @@ class Transaction(Base):
     user = relationship("User", back_populates="transactions")
     policy = relationship("Policy", back_populates="transactions")
     claim = relationship("Claim", back_populates="transactions")
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault("status", "pending")
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return f"<Transaction(id={self.id}, type='{self.transaction_type}', status='{self.status}')>"

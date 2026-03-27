@@ -1,14 +1,11 @@
 import os
-import hashlib
-import json
-from datetime import datetime, timedelta
-from typing import Optional
+from datetime import datetime
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.orm import Session
-from .database import get_db
-from .models import User
-from .auth import create_tokens, verify_token
-from .schemas import (
+from ..database import get_db
+from ..models import User
+from ..auth import create_tokens, verify_token
+from ..schemas import (
     WalletSignatureRequest,
     TokenResponse,
     RefreshTokenRequest,
@@ -16,7 +13,7 @@ from .schemas import (
     UserUpdateRequest,
     MessageResponse
 )
-from .dependencies import get_current_user, get_current_active_user
+from ..dependencies import get_current_active_user
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
