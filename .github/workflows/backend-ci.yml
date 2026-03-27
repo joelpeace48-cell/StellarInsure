@@ -29,5 +29,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Validate backend source and tests compile
-        run: python -m compileall src tests
+      - name: Run backend unit tests with coverage
+        env:
+          ENVIRONMENT: test
+          DATABASE_URL: sqlite://
+          JWT_SECRET_KEY: ci-test-secret
+        run: pytest

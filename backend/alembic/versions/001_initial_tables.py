@@ -34,7 +34,7 @@ def upgrade() -> None:
 
     op.create_table(
         'policies',
-        sa.Column('id', sa.BigInteger(), nullable=False),
+        sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('policyholder_id', sa.Integer(), nullable=False),
         sa.Column('policy_type', sa.Enum('weather', 'smart_contract', 'flight', 'health', 'asset', name='policytype'), nullable=False),
         sa.Column('coverage_amount', sa.Numeric(precision=20, scale=7), nullable=False),
@@ -55,8 +55,8 @@ def upgrade() -> None:
 
     op.create_table(
         'claims',
-        sa.Column('id', sa.BigInteger(), nullable=False),
-        sa.Column('policy_id', sa.BigInteger(), nullable=False),
+        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('policy_id', sa.Integer(), nullable=False),
         sa.Column('claimant_id', sa.Integer(), nullable=False),
         sa.Column('claim_amount', sa.Numeric(precision=20, scale=7), nullable=False),
         sa.Column('proof', sa.String(length=1000), nullable=False),
@@ -75,10 +75,10 @@ def upgrade() -> None:
 
     op.create_table(
         'transactions',
-        sa.Column('id', sa.BigInteger(), nullable=False),
+        sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('user_id', sa.Integer(), nullable=False),
-        sa.Column('policy_id', sa.BigInteger(), nullable=True),
-        sa.Column('claim_id', sa.BigInteger(), nullable=True),
+        sa.Column('policy_id', sa.Integer(), nullable=True),
+        sa.Column('claim_id', sa.Integer(), nullable=True),
         sa.Column('transaction_hash', sa.String(length=64), nullable=False),
         sa.Column('amount', sa.Numeric(precision=20, scale=7), nullable=False),
         sa.Column('transaction_type', sa.String(length=50), nullable=False),

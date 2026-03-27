@@ -1,7 +1,7 @@
 import logging
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import QueuePool
+from sqlalchemy.pool import QueuePool, StaticPool
 from .models import Base
 from .config import get_settings
 
@@ -9,16 +9,32 @@ logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
-engine = create_engine(
-    settings.database_url,
-    poolclass=QueuePool,
-    pool_size=settings.db_pool_size,
-    max_overflow=settings.db_max_overflow,
-    pool_timeout=settings.db_pool_timeout,
-    pool_recycle=settings.db_pool_recycle,
-    pool_pre_ping=settings.db_pool_pre_ping,
-    echo=settings.db_echo
-)
+
+def _build_engine():
+    engine_kwargs = {
+        "echo": settings.db_echo,
+    }
+
+    if settings.database_url.startswith("sqlite"):
+        engine_kwargs["connect_args"] = {"check_same_thread": False}
+        if ":memory:" in settings.database_url:
+            engine_kwargs["poolclass"] = StaticPool
+    else:
+        engine_kwargs.update(
+            {
+                "poolclass": QueuePool,
+                "pool_size": settings.db_pool_size,
+                "max_overflow": settings.db_max_overflow,
+                "pool_timeout": settings.db_pool_timeout,
+                "pool_recycle": settings.db_pool_recycle,
+                "pool_pre_ping": settings.db_pool_pre_ping,
+            }
+        )
+
+    return create_engine(settings.database_url, **engine_kwargs)
+
+
+engine = _build_engine()
 
 
 @event.listens_for(engine, "connect")
@@ -89,7 +105,7 @@ def health_check():
     """Perform database health check"""
     try:
         with engine.connect() as connection:
-            connection.execute("SELECT 1")
+            connection.execute(text("SELECT 1"))
         return {"status": "healthy", "database": "connected"}
     except Exception as e:
         logger.error(f"Database health check failed: {e}")
