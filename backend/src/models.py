@@ -44,7 +44,7 @@ class User(Base):
 class Policy(Base):
     __tablename__ = "policies"
 
-    id = Column(BigInteger, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     policyholder_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     policy_type = Column(Enum(PolicyType), nullable=False)
     coverage_amount = Column(Numeric(precision=20, scale=7), nullable=False)
@@ -85,8 +85,8 @@ class Policy(Base):
 class Claim(Base):
     __tablename__ = "claims"
 
-    id = Column(BigInteger, primary_key=True, index=True)
-    policy_id = Column(BigInteger, ForeignKey("policies.id"), nullable=False, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    policy_id = Column(Integer, ForeignKey("policies.id"), nullable=False, index=True)
     claimant_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     claim_amount = Column(Numeric(precision=20, scale=7), nullable=False)
     proof = Column(String(1000), nullable=False)
@@ -110,10 +110,10 @@ class Claim(Base):
 class Transaction(Base):
     __tablename__ = "transactions"
 
-    id = Column(BigInteger, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    policy_id = Column(BigInteger, ForeignKey("policies.id"), nullable=True, index=True)
-    claim_id = Column(BigInteger, ForeignKey("claims.id"), nullable=True, index=True)
+    policy_id = Column(Integer, ForeignKey("policies.id"), nullable=True, index=True)
+    claim_id = Column(Integer, ForeignKey("claims.id"), nullable=True, index=True)
     transaction_hash = Column(String(64), unique=True, nullable=False, index=True)
     amount = Column(Numeric(precision=20, scale=7), nullable=False)
     transaction_type = Column(String(50), nullable=False)

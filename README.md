@@ -302,6 +302,12 @@ Factors affecting premium:
 - [API Reference](./docs/API.md)
 - [Frontend Guide](./docs/FRONTEND.md)
 
+### Smart contract indexing
+
+The Soroban contracts emit structured events for policy creation, premium payments,
+claim submission and processing, policy cancellation, and risk-pool liquidity activity.
+See [Smart Contract Documentation](./docs/SMARTCONTRACT.md) for the full event list.
+
 ---
 
 ## Security
@@ -328,7 +334,7 @@ Factors affecting premium:
 - [x] Policy creation and management
 - [x] Basic claim processing
 - [ ] Oracle network integration
-- [ ] Risk pool liquidity management
+- [x] Risk pool liquidity management
 - [ ] Frontend MVP
 - [ ] Testnet launch
 - [ ] Actuarial risk modeling
