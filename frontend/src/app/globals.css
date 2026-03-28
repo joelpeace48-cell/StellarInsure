@@ -168,6 +168,13 @@ textarea {
   padding: 1rem 0 2rem;
 }
 
+.topbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -464,6 +471,36 @@ dt,
 .language-status {
   min-height: 1.5rem;
   font-size: var(--step-0);
+}
+
+.wallet-connection {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.wallet-connection__button {
+  justify-content: flex-start;
+  white-space: nowrap;
+}
+
+.wallet-connection__button--connected {
+  background: var(--success-soft);
+  border-color: rgba(30, 142, 62, 0.3);
+  color: var(--success-strong);
+}
+
+.wallet-connection__message {
+  margin: 0;
+  max-width: 26ch;
+  font-size: var(--step--1);
+}
+
+.wallet-connection__message--muted {
+  color: var(--text-muted);
+}
+
+.wallet-connection__message--warning {
+  color: var(--warning-strong);
 }
 
 .footer {
@@ -1031,6 +1068,157 @@ dt,
   margin-top: var(--space-4);
 }
 
+.receipt-grid {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.oracle-panel {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.oracle-state,
+.oracle-card {
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.74);
+}
+
+.oracle-state {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.15rem;
+}
+
+.oracle-state p {
+  margin: 0;
+}
+
+.oracle-state__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.oracle-state__hint {
+  margin-top: 0.2rem;
+  color: var(--text-muted);
+  font-size: var(--step-0);
+}
+
+.oracle-state--error {
+  border-color: rgba(176, 107, 0, 0.45);
+  background: var(--warning-soft);
+}
+
+.oracle-state--empty {
+  grid-template-columns: auto 1fr;
+}
+
+.oracle-selector {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.oracle-card {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem 1.15rem;
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--easing-standard),
+    box-shadow var(--duration-fast) var(--easing-standard),
+    transform var(--duration-fast) var(--easing-standard);
+}
+
+.oracle-card:hover {
+  border-color: rgba(16, 37, 66, 0.22);
+  box-shadow: var(--shadow-100);
+  transform: translateY(-1px);
+}
+
+.oracle-card--selected {
+  border-color: var(--focus);
+  box-shadow: 0 0 0 1px var(--focus);
+}
+
+.oracle-card__input {
+  margin: 0;
+  accent-color: var(--focus);
+}
+
+.oracle-card__header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.oracle-card__header > span:first-child {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.oracle-card__header > span:first-child span {
+  color: var(--text-muted);
+  font-size: var(--step--1);
+}
+
+.oracle-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.1rem;
+  color: var(--text-muted);
+  font-size: var(--step-0);
+}
+
+.oracle-confidence {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.85rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.oracle-confidence--high {
+  background: var(--success-soft);
+  color: var(--success-strong);
+}
+
+.oracle-confidence--medium {
+  background: var(--warning-soft);
+  color: var(--warning-strong);
+}
+
+.oracle-confidence--low {
+  background: var(--danger-soft);
+  color: var(--danger-strong);
+}
+
+.oracle-fallback {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(16, 37, 66, 0.14);
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--text-muted);
+  font-size: var(--step-0);
+}
+
+.oracle-fallback--warning {
+  border-color: rgba(176, 107, 0, 0.36);
+  background: var(--warning-soft);
+  color: var(--warning-strong);
+}
+
 /* Stepper */
 .stepper {
   margin-bottom: var(--space-3);
@@ -1336,6 +1524,10 @@ dt,
     align-items: center;
   }
 
+  .topbar-actions {
+    justify-self: end;
+  }
+
   .nav-links {
     justify-content: center;
   }
@@ -1373,6 +1565,20 @@ dt,
 
   .maintenance-banner__link {
     justify-content: center;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    display: grid;
+  }
+
+  .wallet-connection {
+    width: 100%;
+  }
+
+  .oracle-state {
+    grid-template-columns: 1fr;
+    justify-items: start;
   }
 
   .hero-card,
@@ -1495,7 +1701,7 @@ dt,
   .ob-content,
   .ob-dot,
   .skip-link,
-  .ob-skeleton {
+  .ob-skeleton,
   .tl-step--active .tl-icon {
     animation: none;
     transition: none;
