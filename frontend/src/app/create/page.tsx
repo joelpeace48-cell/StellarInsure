@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
+import { AmountInput, formatAssetAmount, parseAmountInput } from "@/components/amount-input";
 import { Icon } from "@/components/icon";
 import { Skeleton, SkeletonText } from "@/components/skeleton";
 import { PolicyTypeSelector, type PolicyType } from "@/components/policy-type-selector";
@@ -137,6 +138,7 @@ function ReviewLoadingState() {
     </div>
   );
 }
+const MAX_COVERAGE_AMOUNT = 1_000_000;
 
 function StepIndicator({ current }: { current: CreateStep }) {
   return (
@@ -219,6 +221,7 @@ export default function CreatePolicyPage() {
 
     return () => window.clearTimeout(timer);
   }, [reviewSummary, step]);
+  const [coverageTouched, setCoverageTouched] = useState(false);
 
   function updateDraft<K extends keyof PolicyDraft>(field: K, value: PolicyDraft[K]) {
     setDraft({ ...draft, [field]: value });
@@ -231,6 +234,12 @@ export default function CreatePolicyPage() {
 
   function handleConfigureNext() {
     setReviewState("loading");
+    setCoverageTouched(true);
+
+    if (!isConfigValid) {
+      return;
+    }
+
     setStep(2);
   }
 
@@ -272,8 +281,18 @@ export default function CreatePolicyPage() {
     }, 3600);
   }
 
+  const parsedCoverageAmount = parseAmountInput(draft.coverageAmount);
+  const coverageError =
+    draft.coverageAmount.trim() === ""
+      ? "Enter a coverage amount to continue."
+      : parsedCoverageAmount === null || parsedCoverageAmount <= 0
+        ? "Enter a valid coverage amount in XLM."
+        : parsedCoverageAmount > MAX_COVERAGE_AMOUNT
+          ? `Coverage amount cannot exceed ${formatAssetAmount(MAX_COVERAGE_AMOUNT)} XLM.`
+          : undefined;
+
   const isConfigValid =
-    draft.coverageAmount.trim() !== "" &&
+    coverageError === undefined &&
     draft.triggerCondition.trim() !== "" &&
     draft.premium.trim() !== "" &&
     draft.duration.trim() !== "";
@@ -311,17 +330,23 @@ export default function CreatePolicyPage() {
           <div className="form-grid">
             <label className="field">
               <span className="field__label">Coverage Amount (XLM)</span>
-              <input
+              <AmountInput
                 className="field__input"
-                type="number"
-                inputMode="decimal"
-                min="0"
-                step="0.01"
-                placeholder="e.g. 5000"
+                aria-invalid={Boolean(coverageError) && coverageTouched}
+                aria-describedby={coverageError && coverageTouched ? "coverage-error" : "coverage-hint"}
+                placeholder="e.g. 5,000.00"
                 value={draft.coverageAmount}
-                onChange={(e) => updateDraft("coverageAmount", e.target.value)}
+                onChange={(value) => updateDraft("coverageAmount", value)}
+                onBlur={() => setCoverageTouched(true)}
               />
-              <span className="field__hint">Maximum payout if the trigger condition is met.</span>
+              <span id="coverage-hint" className="field__hint">
+                Maximum payout if the trigger condition is met. Limit: {formatAssetAmount(MAX_COVERAGE_AMOUNT)} XLM.
+              </span>
+              {coverageError && coverageTouched ? (
+                <span id="coverage-error" className="field__error">
+                  {coverageError}
+                </span>
+              ) : null}
             </label>
 
             <label className="field">
@@ -402,6 +427,28 @@ export default function CreatePolicyPage() {
               <p className="state-copy">
                 Add {missingReviewFields.join(" and ")} before confirmation so the final review can show every policy detail.
               </p>
+          <div className="panel">
+            <dl className="definition-grid">
+              <div>
+                <dt>Policy Type</dt>
+                <dd>{draft.policyType?.replace("-", " ")}</dd>
+              </div>
+              <div>
+                <dt>Coverage</dt>
+                <dd>{parsedCoverageAmount !== null ? formatAssetAmount(parsedCoverageAmount) : draft.coverageAmount} XLM</dd>
+              </div>
+              <div>
+                <dt>Premium</dt>
+                <dd>{draft.premium} XLM</dd>
+              </div>
+              <div>
+                <dt>Duration</dt>
+                <dd>{draft.duration} days</dd>
+              </div>
+            </dl>
+            <div className="policy-copy-block" style={{ marginTop: "var(--space-4)" }}>
+              <h3>Trigger Condition</h3>
+              <p>{draft.triggerCondition}</p>
             </div>
           ) : null}
 
