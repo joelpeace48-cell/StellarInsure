@@ -4,6 +4,7 @@ import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
 import { Icon } from "@/components/icon";
+import { Skeleton, SkeletonText } from "@/components/skeleton";
 import { TransactionModal } from "@/components/transaction-modal";
 
 type PolicyStatus = "Active" | "Claim Pending" | "Claim Approved";
@@ -245,16 +246,59 @@ export default function PolicyDetailPage({
 
   if (isLoading) {
     return (
-      <main id="main-content" className="policy-page">
-        <section className="policy-shell policy-shell--loading" aria-busy="true">
-          <span className="eyebrow">Policy Detail</span>
-          <span className="state-icon" aria-hidden="true">
-            <Icon name="clock" size="lg" tone="muted" />
-          </span>
-          <h1>Loading policy snapshot</h1>
-          <p className="state-copy">
-            Pulling the latest policy summary, claim activity, and print metadata.
-          </p>
+      <main id="main-content" className="policy-page" aria-busy="true">
+        <span className="visually-hidden">Loading policy data, please wait.</span>
+        <section className="policy-shell">
+          {/* Header */}
+          <div className="policy-header" style={{ marginBottom: "2rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem", flexWrap: "wrap" }}>
+              <div style={{ flex: 1 }}>
+                <Skeleton style={{ width: "80px", height: "12px", marginBottom: "0.75rem" }} />
+                <Skeleton style={{ width: "55%", height: "32px", marginBottom: "0.5rem" }} />
+                <Skeleton style={{ width: "30%", height: "14px" }} />
+              </div>
+              <div style={{ display: "flex", gap: "0.75rem" }}>
+                <Skeleton style={{ width: "110px", height: "38px", borderRadius: "8px" }} />
+                <Skeleton style={{ width: "110px", height: "38px", borderRadius: "8px" }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Key Metrics Grid */}
+          <div className="policy-grid" style={{ marginBottom: "2rem" }}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={`metric-sk-${i}`} className="hero-card" style={{ padding: "1.25rem" }}>
+                <Skeleton style={{ width: "28px", height: "28px", borderRadius: "50%", marginBottom: "0.75rem" }} />
+                <Skeleton style={{ width: "60%", height: "11px", marginBottom: "0.5rem" }} />
+                <Skeleton style={{ width: "80%", height: "20px" }} />
+              </div>
+            ))}
+          </div>
+
+          {/* Two-column panel area */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "2rem" }}>
+            {Array.from({ length: 2 }).map((_, j) => (
+              <div key={`panel-sk-${j}`} className="panel" style={{ padding: "1.5rem" }}>
+                <Skeleton style={{ width: "40%", height: "14px", marginBottom: "1rem" }} />
+                <SkeletonText lines={4} />
+              </div>
+            ))}
+          </div>
+
+          {/* Timeline / claim list rows */}
+          <div className="panel" style={{ padding: "1.5rem" }}>
+            <Skeleton style={{ width: "35%", height: "14px", marginBottom: "1.25rem" }} />
+            {Array.from({ length: 3 }).map((_, k) => (
+              <div key={`row-sk-${k}`} style={{ display: "flex", gap: "1rem", alignItems: "center", marginBottom: "1rem" }}>
+                <Skeleton style={{ width: "36px", height: "36px", borderRadius: "50%", flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                  <Skeleton style={{ width: "50%", height: "12px", marginBottom: "0.4rem" }} />
+                  <Skeleton style={{ width: "30%", height: "10px" }} />
+                </div>
+                <Skeleton style={{ width: "70px", height: "24px", borderRadius: "20px" }} />
+              </div>
+            ))}
+          </div>
         </section>
       </main>
     );
