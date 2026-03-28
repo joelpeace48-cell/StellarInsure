@@ -1031,6 +1031,33 @@ dt,
   margin-top: var(--space-4);
 }
 
+.create-review-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.create-review-header {
+  margin-bottom: 0;
+}
+
+.create-review-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-bottom: var(--space-4);
+  border-radius: 1rem;
+  background: rgba(31, 122, 140, 0.08);
+}
+
+.create-review-callout p {
+  margin: 0;
+}
+
+.create-review-list {
+  gap: 0.75rem;
+}
+
 /* Stepper */
 .stepper {
   margin-bottom: var(--space-3);
@@ -1290,7 +1317,8 @@ dt,
 @media (min-width: 880px) {
   .hero-grid,
   .workflow-grid,
-  .policy-grid {
+  .policy-grid,
+  .create-review-grid {
     grid-template-columns: minmax(0, 1.3fr) minmax(18rem, 0.9fr);
   }
 
@@ -1322,7 +1350,8 @@ dt,
   .policy-grid,
   .feature-grid,
   .claim-list,
-  .policy-type-grid {
+  .policy-type-grid,
+  .create-review-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

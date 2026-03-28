@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 import { Icon } from "@/components/icon";
+import { Skeleton, SkeletonText } from "@/components/skeleton";
 import { PolicyTypeSelector, type PolicyType } from "@/components/policy-type-selector";
 import { TransactionTimeline, DEFAULT_TX_STEPS, type TimelineStep } from "@/components/transaction-timeline";
 import { useAutosave } from "@/hooks/use-autosave";
 
 type CreateStep = 0 | 1 | 2 | 3;
+type ReviewState = "idle" | "loading" | "ready" | "error";
 
 interface PolicyDraft {
   policyType: PolicyType | null;
@@ -16,6 +18,17 @@ interface PolicyDraft {
   premium: string;
   triggerCondition: string;
   duration: string;
+}
+
+interface PolicyReviewSummary {
+  policyTypeLabel: string;
+  coverageAmountLabel: string;
+  premiumLabel: string;
+  durationLabel: string;
+  triggerCondition: string;
+  premiumRateLabel: string;
+  activationLabel: string;
+  payoutTimingLabel: string;
 }
 
 const INITIAL_DRAFT: PolicyDraft = {
@@ -32,6 +45,98 @@ const STEP_LABELS = [
   "Review",
   "Submit",
 ];
+
+const POLICY_TYPE_LABELS: Record<PolicyType, string> = {
+  weather: "Weather protection",
+  flight: "Flight delay",
+  "smart-contract": "Smart contract",
+  asset: "Asset protection",
+  health: "Health",
+};
+
+function formatAssetAmount(amount: number) {
+  if (Number.isInteger(amount)) {
+    return amount.toString();
+  }
+
+  return amount.toFixed(2);
+}
+
+function toNumber(value: string) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function buildReviewSummary(draft: PolicyDraft): PolicyReviewSummary | null {
+  if (!draft.policyType) {
+    return null;
+  }
+
+  if (
+    draft.coverageAmount.trim() === "" ||
+    draft.premium.trim() === "" ||
+    draft.triggerCondition.trim() === "" ||
+    draft.duration.trim() === ""
+  ) {
+    return null;
+  }
+
+  const coverageAmount = toNumber(draft.coverageAmount);
+  const premium = toNumber(draft.premium);
+  const duration = toNumber(draft.duration);
+
+  if (
+    coverageAmount === null ||
+    premium === null ||
+    duration === null ||
+    coverageAmount <= 0 ||
+    premium <= 0 ||
+    duration <= 0
+  ) {
+    throw new Error("Invalid policy review values");
+  }
+
+  const premiumRate = (premium / coverageAmount) * 100;
+  const activationWindow = duration <= 30
+    ? "Short-term policy setup"
+    : duration <= 120
+      ? "Seasonal monitoring window"
+      : "Extended coverage window";
+
+  return {
+    policyTypeLabel: POLICY_TYPE_LABELS[draft.policyType],
+    coverageAmountLabel: `${formatAssetAmount(coverageAmount)} XLM`,
+    premiumLabel: `${formatAssetAmount(premium)} XLM`,
+    durationLabel: `${formatAssetAmount(duration)} days`,
+    triggerCondition: draft.triggerCondition.trim(),
+    premiumRateLabel: `${premiumRate.toFixed(1)}% of coverage`,
+    activationLabel: `${activationWindow} with automatic draft recovery on this device.`,
+    payoutTimingLabel: "Payout review begins automatically after the trigger is verified on-chain.",
+  };
+}
+
+function ReviewLoadingState() {
+  return (
+    <div className="panel" aria-live="polite" aria-busy="true">
+      <div className="section-header">
+        <span className="eyebrow">Final Review</span>
+        <h2>Building your policy summary</h2>
+        <p>We&apos;re assembling all policy details so you can verify everything before signing.</p>
+      </div>
+      <div className="create-review-grid">
+        <div className="hero-card">
+          <Skeleton style={{ width: "42%", height: "14px", marginBottom: "0.75rem" }} />
+          <Skeleton style={{ width: "70%", height: "28px", marginBottom: "0.75rem" }} />
+          <SkeletonText lines={3} />
+        </div>
+        <div className="panel">
+          <Skeleton style={{ width: "36%", height: "14px", marginBottom: "0.9rem" }} />
+          <SkeletonText lines={4} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function StepIndicator({ current }: { current: CreateStep }) {
   return (
@@ -73,6 +178,47 @@ export default function CreatePolicyPage() {
     return 0;
   });
   const [txSteps, setTxSteps] = useState<TimelineStep[]>(DEFAULT_TX_STEPS);
+  const [reviewState, setReviewState] = useState<ReviewState>(() => (step === 2 ? "loading" : "idle"));
+
+  const missingReviewFields = useMemo(() => {
+    const missingFields: string[] = [];
+
+    if (!draft.policyType) missingFields.push("policy type");
+    if (!draft.coverageAmount.trim()) missingFields.push("coverage amount");
+    if (!draft.premium.trim()) missingFields.push("premium");
+    if (!draft.triggerCondition.trim()) missingFields.push("trigger condition");
+    if (!draft.duration.trim()) missingFields.push("policy duration");
+
+    return missingFields;
+  }, [draft]);
+
+  const reviewSummary = useMemo(() => {
+    try {
+      return buildReviewSummary(draft);
+    } catch {
+      return "error" as const;
+    }
+  }, [draft]);
+
+  useEffect(() => {
+    if (step !== 2) {
+      setReviewState("idle");
+      return;
+    }
+
+    setReviewState("loading");
+
+    const timer = window.setTimeout(() => {
+      if (reviewSummary === "error") {
+        setReviewState("error");
+        return;
+      }
+
+      setReviewState("ready");
+    }, 320);
+
+    return () => window.clearTimeout(timer);
+  }, [reviewSummary, step]);
 
   function updateDraft<K extends keyof PolicyDraft>(field: K, value: PolicyDraft[K]) {
     setDraft({ ...draft, [field]: value });
@@ -84,6 +230,7 @@ export default function CreatePolicyPage() {
   }
 
   function handleConfigureNext() {
+    setReviewState("loading");
     setStep(2);
   }
 
@@ -244,36 +391,106 @@ export default function CreatePolicyPage() {
             <p>Confirm the details below before submitting to the Stellar network.</p>
           </div>
 
-          <div className="panel">
-            <dl className="definition-grid">
-              <div>
-                <dt>Policy Type</dt>
-                <dd>{draft.policyType?.replace("-", " ")}</dd>
-              </div>
-              <div>
-                <dt>Coverage</dt>
-                <dd>{draft.coverageAmount} XLM</dd>
-              </div>
-              <div>
-                <dt>Premium</dt>
-                <dd>{draft.premium} XLM</dd>
-              </div>
-              <div>
-                <dt>Duration</dt>
-                <dd>{draft.duration} days</dd>
-              </div>
-            </dl>
-            <div className="policy-copy-block" style={{ marginTop: "var(--space-4)" }}>
-              <h3>Trigger Condition</h3>
-              <p>{draft.triggerCondition}</p>
+          {reviewState === "loading" ? <ReviewLoadingState /> : null}
+
+          {reviewState === "ready" && reviewSummary !== "error" && !reviewSummary ? (
+            <div className="state-card motion-panel" role="status">
+              <span className="state-icon" aria-hidden="true">
+                <Icon name="document" size="lg" tone="muted" />
+              </span>
+              <h3>Review details still missing</h3>
+              <p className="state-copy">
+                Add {missingReviewFields.join(" and ")} before confirmation so the final review can show every policy detail.
+              </p>
             </div>
-          </div>
+          ) : null}
+
+          {reviewState === "error" || reviewSummary === "error" ? (
+            <div className="state-card motion-panel" role="alert">
+              <span className="state-icon" aria-hidden="true">
+                <Icon name="alert" size="lg" tone="warning" />
+              </span>
+              <h3>Review summary could not be prepared</h3>
+              <p className="state-copy">
+                Fix the policy values and return to review. Coverage, premium, and duration must all be valid positive numbers.
+              </p>
+            </div>
+          ) : null}
+
+          {reviewState === "ready" && reviewSummary !== "error" && reviewSummary ? (
+            <div className="create-review-grid">
+              <section className="hero-card motion-panel" aria-labelledby="policy-review-summary-title">
+                <div className="section-header create-review-header">
+                  <span className="eyebrow">Final Review</span>
+                  <h3 id="policy-review-summary-title">Final policy review</h3>
+                  <p>Review every detail below before you sign and submit this policy to Stellar.</p>
+                </div>
+
+                <dl className="definition-grid">
+                  <div>
+                    <dt>Policy Type</dt>
+                    <dd>{reviewSummary.policyTypeLabel}</dd>
+                  </div>
+                  <div>
+                    <dt>Coverage</dt>
+                    <dd>{reviewSummary.coverageAmountLabel}</dd>
+                  </div>
+                  <div>
+                    <dt>Premium</dt>
+                    <dd>{reviewSummary.premiumLabel}</dd>
+                  </div>
+                  <div>
+                    <dt>Duration</dt>
+                    <dd>{reviewSummary.durationLabel}</dd>
+                  </div>
+                  <div>
+                    <dt>Premium Rate</dt>
+                    <dd>{reviewSummary.premiumRateLabel}</dd>
+                  </div>
+                  <div>
+                    <dt>Payout Timing</dt>
+                    <dd>{reviewSummary.payoutTimingLabel}</dd>
+                  </div>
+                </dl>
+
+                <div className="policy-copy-block" style={{ marginTop: "var(--space-4)" }}>
+                  <h3>Trigger Condition</h3>
+                  <p>{reviewSummary.triggerCondition}</p>
+                </div>
+              </section>
+
+              <aside className="panel motion-panel" aria-labelledby="policy-review-checklist-title">
+                <div className="section-header create-review-header">
+                  <span className="eyebrow">Confirmation Checklist</span>
+                  <h3 id="policy-review-checklist-title">Before you confirm</h3>
+                  <p>Use this checklist to validate cost, timing, and trigger behavior on mobile or desktop.</p>
+                </div>
+
+                <div className="create-review-callout">
+                  <Icon name="calendar" size="md" tone="accent" />
+                  <p>{reviewSummary.activationLabel}</p>
+                </div>
+
+                <ul className="policy-checklist create-review-list">
+                  <li>The trigger condition matches the oracle data source you expect.</li>
+                  <li>The coverage amount and premium reflect the policy cost you want to approve.</li>
+                  <li>The duration is correct for the time window you need monitored.</li>
+                  <li>You can go back now without losing draft progress on this device.</li>
+                </ul>
+              </aside>
+            </div>
+          ) : null}
 
           <div className="form-actions">
             <button className="cta-secondary" type="button" onClick={handleBack}>
               Back
             </button>
-            <button className="cta-primary" type="button" onClick={simulateSubmit}>
+            <button
+              className="cta-primary"
+              type="button"
+              onClick={simulateSubmit}
+              disabled={reviewState !== "ready" || reviewSummary === "error" || !reviewSummary}
+            >
               Sign and Submit
             </button>
             <button
