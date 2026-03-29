@@ -1524,7 +1524,8 @@ dt,
 @media (min-width: 880px) {
   .hero-grid,
   .workflow-grid,
-  .policy-grid {
+  .policy-grid,
+  .create-review-grid {
     grid-template-columns: minmax(0, 1.3fr) minmax(18rem, 0.9fr);
   }
 
@@ -1556,7 +1557,8 @@ dt,
   .policy-grid,
   .feature-grid,
   .claim-list,
-  .policy-type-grid {
+  .policy-type-grid,
+  .create-review-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
