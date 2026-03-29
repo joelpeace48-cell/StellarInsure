@@ -74,6 +74,12 @@ const ar = {
     arabic: "العربية",
     switched: "تم تحديث اللغة إلى العربية.",
   },
+  nav: {
+    label: "التنقل الرئيسي",
+    overview: "نظرة عامة",
+    policies: "الوثائق",
+    history: "السجل",
+  },
   maintenance: {
     badge: "إشعار صيانة",
     regionLabel: "إشعار صيانة المنصة",

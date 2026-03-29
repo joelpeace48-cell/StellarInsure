@@ -74,6 +74,12 @@ const en = {
     arabic: "Arabic",
     switched: "Language updated to English.",
   },
+  nav: {
+    label: "Main navigation",
+    overview: "Overview",
+    policies: "Policies",
+    history: "History",
+  },
   maintenance: {
     badge: "Maintenance notice",
     regionLabel: "Platform maintenance notice",
