@@ -219,6 +219,21 @@ npm run dev
 cd ../backend
 pip install -r requirements.txt
 python src/main.py
+
+### Using Docker (Recommended for Development)
+
+A `docker-compose.yml` file is provided to quickly spin up the frontend, backend, PostgreSQL database, and Redis.
+
+```bash
+# Create a .env.docker file (or modify the provided template if necessary)
+# then run:
+docker-compose up --build
+```
+This will start:
+- Frontend on `http://localhost:3000`
+- Backend on `http://localhost:8000`
+- PostgreSQL & Redis locally for backend connections
+
 ```
 
 ---

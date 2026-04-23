@@ -21,6 +21,7 @@ import { useAutosave } from "@/hooks/use-autosave";
 import { TriggerConditionBuilder } from "@/components/trigger-condition-builder";
 import { PremiumEstimate, type PremiumBreakdown } from "@/components/premium-estimate";
 import { ValidationSummary, type ValidationError } from "@/components/validation-summary";
+import { signTransaction } from "@stellar/freighter-api";
 
 type CreateStep = 0 | 1 | 2 | 3;
 
@@ -400,7 +401,7 @@ export default function CreatePolicyPageClient() {
     }
   }
 
-  function simulateSubmit() {
+  async function simulateSubmit() {
     if (!isWalletReady) {
       return;
     }
@@ -426,30 +427,43 @@ export default function CreatePolicyPageClient() {
     updatedSteps[0] = { ...updatedSteps[0], status: "active" };
     setTxSteps(updatedSteps);
 
-    setTimeout(() => {
-      const next = [...updatedSteps];
-      next[0] = { ...next[0], status: "completed" };
-      next[1] = { ...next[1], status: "active" };
-      setTxSteps(next);
-    }, 1200);
+    try {
+      // Dummy transaction (in a real app, you'd build a proper Soroban transaction)
+      const dummyTx = "AAAAAgAAAAA6V+GyS5x1u+WCzONvDjqnqF6nWCAf3g4pY9qpArIB";
+      
+      const sigPromise = signTransaction(dummyTx, {
+        network: "TESTNET",
+      });
 
-    setTimeout(() => {
+      setTimeout(() => {
+        const next = [...updatedSteps];
+        next[0] = { ...next[0], status: "completed" };
+        next[1] = { ...next[1], status: "active" };
+        setTxSteps(next);
+      }, 1200);
+
+      // Await Freighter signature
+      const signedTx = await sigPromise;
+
       const next = [...updatedSteps];
       next[0] = { ...next[0], status: "completed" };
       next[1] = { ...next[1], status: "completed" };
       next[2] = { ...next[2], status: "active" };
       setTxSteps(next);
-    }, 2400);
 
-    setTimeout(() => {
-      const next = [...updatedSteps];
-      next[0] = { ...next[0], status: "completed" };
-      next[1] = { ...next[1], status: "completed" };
-      next[2] = { ...next[2], status: "completed" };
-      setTxSteps(next);
-      setReceipt(nextReceipt);
-      clearDraft();
-    }, 3600);
+      setTimeout(() => {
+        const finalSteps = [...next];
+        finalSteps[2] = { ...finalSteps[2], status: "completed" };
+        setTxSteps(finalSteps);
+        setReceipt(nextReceipt);
+        clearDraft();
+      }, 2000);
+    } catch (error) {
+      const errorSteps = [...updatedSteps];
+      errorSteps[0] = { ...errorSteps[0], status: "failed" };
+      setTxSteps(errorSteps);
+      console.error(error);
+    }
   }
 
   const parsedCoverageAmount = parseAmountInput(draft.coverageAmount);
@@ -478,6 +492,12 @@ export default function CreatePolicyPageClient() {
   const isWalletReady = isConnected && walletStatus !== "checking" && walletStatus !== "connecting";
 
   return (
+    <main id="main-content" className="create-page">
+      <div className="section-header create-header motion-panel">
+        <span className="eyebrow">Create Policy</span>
+        <h1 id="create-title">Protect Your Assets</h1>
+        <p>
+          Configure a parametric insurance policy and submit it directly to the Stellar network.
         </p>
       </div>
 

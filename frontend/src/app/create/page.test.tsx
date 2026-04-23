@@ -90,12 +90,10 @@ describe("CreatePolicyPage", () => {
 
     expect(screen.getByRole("heading", { name: /review summary could not be prepared/i })).toBeInTheDocument();
     expect(screen.getByText(/fix the highlighted policy values/i)).toBeInTheDocument();
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+  });
+});
 
-import CreatePolicyPage from "./page";
-
-describe("CreatePolicyPage", () => {
+describe("CreatePolicyPage Format", () => {
   it("formats the coverage amount input as the user types", () => {
     render(<CreatePolicyPage />);
 

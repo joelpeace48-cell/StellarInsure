@@ -41,7 +41,7 @@ export function TriggerConditionBuilder({
   };
 
   const addRule = () => {
-    const nextRules = [...rules, { field: availableFields[0].id, operator: ">", value: "" }];
+    const nextRules: ConditionRule[] = [...rules, { field: availableFields[0].id, operator: ">", value: "" }];
     setRules(nextRules);
     notifyChange(nextRules);
   };
