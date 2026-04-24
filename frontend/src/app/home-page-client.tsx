@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { FeatureCard } from "@/components/feature-card";
 import { Icon } from "@/components/icon";
+import { PolicyMetricsCharts } from "@/components/policy-metrics-charts";
 import { TransactionModal } from "@/components/transaction-modal";
 import { useAppTranslation } from "@/i18n/provider";
 
@@ -29,7 +30,7 @@ export default function HomePage() {
             <p>{t("hero.description")}</p>
 
             <div className="cta-row">
-              <a className="cta-primary" href="#coverage">
+              <a className="cta-primary" href="#coverage" data-onboarding="hero-primary-cta">
                 {t("hero.primaryCta")}
               </a>
               <a className="cta-secondary" href="#workflow">
@@ -166,6 +167,15 @@ export default function HomePage() {
             </ul>
           </article>
         </div>
+      </section>
+
+      <section id="policy-metrics" aria-labelledby="policy-metrics-title">
+        <div className="section-header">
+          <span className="eyebrow">Metrics</span>
+          <h2 id="policy-metrics-title">Policy Metrics</h2>
+          <p>Reusable charts for premiums, payouts, and policy counts.</p>
+        </div>
+        <PolicyMetricsCharts />
       </section>
 
       <TransactionModal

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { WalletConnectionButton } from "@/components/wallet-connection-button";
+import { CommandPalette } from "@/components/command-palette";
 
 type NavItem = {
   href: string;
@@ -17,6 +18,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/create", label: "Create Policy" },
   { href: "/policies", label: "My Policies" },
   { href: "/history", label: "History" },
+  { href: "/settings", label: "Preferences" },
 ];
 
 const PAGE_CONTEXT: Record<string, { title: string; description: string }> = {
@@ -101,6 +103,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="topbar-actions topbar-actions--desktop">
+          <CommandPalette />
           <WalletConnectionButton />
           <LanguageSwitcher />
         </div>
@@ -125,6 +128,7 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="mobile-drawer__actions">
+          <CommandPalette />
           <WalletConnectionButton />
           <LanguageSwitcher />
         </div>

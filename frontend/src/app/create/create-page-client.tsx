@@ -526,6 +526,7 @@ export default function CreatePolicyPageClient() {
             <label className="field">
               <span className="field__label">Coverage Amount (XLM)</span>
               <AmountInput
+                id="coverage-amount-input"
                 className="field__input"
                 aria-invalid={Boolean(coverageError) && coverageTouched}
                 aria-describedby={coverageError && coverageTouched ? "coverage-error" : "coverage-hint"}

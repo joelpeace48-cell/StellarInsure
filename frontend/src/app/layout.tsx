@@ -7,6 +7,7 @@ import { StructuredData } from "@/components/structured-data";
 import { WalletProvider } from "@/components/wallet-provider";
 import { MaintenanceBanner } from "@/components/maintenance-banner";
 import { OnboardingFlow } from "@/components/onboarding";
+import { OnboardingTooltips } from "@/components/onboarding-tooltips";
 import { PageTransition } from "@/components/page-transition";
 import { LanguageProvider } from "@/i18n/provider";
 import {
@@ -78,6 +79,7 @@ export default function RootLayout({
             <StructuredData data={organizationStructuredData()} />
             <StructuredData data={websiteStructuredData()} />
             <OnboardingFlow />
+            <OnboardingTooltips />
             <a className="skip-link" href="#main-content">
               Skip to main content
             </a>
